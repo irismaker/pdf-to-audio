@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![GitHub stars](https://img.shields.io/github/stars/irismaker/pdf-to-audio.svg?style=social&label=Star)](https://github.com/irismaker/pdf-to-audio)
 
-A flexible and extensible Python tool for batch converting PDF documents to high-quality audio using various Text-to-Speech providers. Features a modern web interface for easy file uploads without any command line knowledge required.
+A flexible Python tool for converting PDF documents to audio using various TTS providers.
 
 ## ✨ Features
 

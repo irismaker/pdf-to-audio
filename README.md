@@ -30,6 +30,7 @@ A flexible and extensible Python tool for batch converting PDF documents to high
 The easiest way to use this tool is through the modern web interface:
 
 - **No Command Line Required** - Everything in your browser
+- **Flexible API Configuration** - Use PPIO or custom API endpoints
 - **Drag & Drop Upload** - Simply drag your PDF files
 - **Real-time Progress** - Visual progress bar with status updates
 - **Audio Preview** - Play audio before downloading
@@ -151,6 +152,7 @@ The server will start on `http://localhost:5000`. Open this URL in your web brow
 
 1. **Configure API**
    - Enter your MiniMax API key
+   - Configure API URL (default: PPIO provider, or enter your custom endpoint)
    - Select provider (currently only MiniMax is available)
 
 2. **Upload PDF**
@@ -177,6 +179,7 @@ The server will start on `http://localhost:5000`. Open this URL in your web brow
 #### Web Interface Features
 
 - **No File Management**: Upload files directly through browser
+- **Flexible API Configuration**: Use PPIO provider or custom API endpoints
 - **Real-time Progress**: Visual progress bar with status messages
 - **Audio Preview**: Play audio before downloading
 - **Batch Download**: Download all generated files as ZIP

@@ -1,0 +1,330 @@
+# PDF to Audio Converter 🎙️
+
+[![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub stars](https://img.shields.io/github/stars/irismaker/pdf-to-audio.svg?style=social&label=Star)](https://github.com/irismaker/pdf-to-audio)
+
+A flexible and extensible Python tool for batch converting PDF documents to high-quality audio using various Text-to-Speech providers.
+
+## ✨ Features
+
+- 📚 **Batch Processing** - Convert multiple PDF documents at once
+- 🔌 **Multiple TTS Providers** - Extensible architecture to support different TTS services
+- ✂️ **Smart Text Splitting** - Automatically splits long texts to avoid API limits
+- 🎵 **Customizable Voice** - Adjust speed, pitch, timbre, emotion and more
+- 📊 **Progress Tracking** - Real-time progress display and status updates
+- 🔄 **Error Handling** - Robust error handling with retry mechanisms
+- 🎧 **High Quality Output** - MP3 format at 128kbps bitrate
+
+### Currently Supported Providers
+
+- ✅ **MiniMax** - High-quality Chinese TTS with multiple voice options
+- 🔜 **OpenAI** - Coming soon
+- 🔜 **ElevenLabs** - Coming soon
+- 🔜 **Azure TTS** - Coming soon
+- 🔜 **Google Cloud TTS** - Coming soon
+
+## 🚀 Quick Start
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/irismaker/pdf-to-audio.git
+cd pdf-to-audio
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure API
+
+**Method A: Using Config File (Recommended)**
+
+```bash
+cp config_example.py config.py
+# Edit config.py and add your API keys and settings
+```
+
+**Method B: Using Environment Variables**
+
+```bash
+export TTS_PROVIDER="minimax"
+export TTS_API_KEY="your_api_key_here"
+```
+
+### 4. Run the Program
+
+**Quick Start (Recommended)**
+
+```bash
+python quick_start.py
+```
+
+**Interactive Mode**
+
+```bash
+python pdf_to_audio.py
+```
+
+## 📖 Usage
+
+### Basic Usage
+
+#### Interactive Mode
+
+```bash
+python pdf_to_audio.py
+```
+
+Follow the prompts to:
+1. Select TTS provider
+2. Enter API key (if not in config)
+3. Specify PDF file or directory
+4. Customize voice settings (optional)
+
+#### Quick Start with Config
+
+```bash
+python quick_start.py
+```
+
+Automatically uses settings from `config.py` and scans current directory for PDFs.
+
+### Advanced Usage
+
+#### Use as Python Module
+
+```python
+from pdf_to_audio import PDFToAudioConverter
+
+# Create converter with MiniMax
+converter = PDFToAudioConverter(
+    provider_name="minimax",
+    api_key="your_api_key",
+    provider_config={"timeout": 60}
+)
+
+# Convert single file
+converter.convert_pdf_to_audio(
+    pdf_path="document.pdf",
+    output_dir="audio_output"
+)
+
+# Batch convert directory
+converter.batch_convert(
+    pdf_dir="./pdfs",
+    output_dir="./audio_output"
+)
+```
+
+#### Custom Voice Settings
+
+```python
+# MiniMax voice settings
+voice_settings = {
+    "speed": 1.2,           # Speech rate: 0.5-2.0
+    "pitch": 2,             # Pitch: -12 to 12
+    "vol": 1.5,             # Volume: 0.1-10
+    "emotion": "happy",     # Emotion: neutral, happy, sad, angry
+    "voice_id": "female-tianmei"  # Voice ID
+}
+
+converter.convert_pdf_to_audio(
+    pdf_path="document.pdf",
+    voice_settings=voice_settings
+)
+```
+
+## 🎨 Available Voices (MiniMax)
+
+### Male Voices
+- `male-qn-qingse` - Young Male
+- `male-qn-jingying` - Professional Male
+- `male-qn-badao` - Commanding Male
+- `male-qn-daxuesheng` - College Student Male
+
+### Female Voices
+- `female-shaonv` - Young Female
+- `female-yujie` - Mature Female
+- `female-chengshu` - Sophisticated Female
+- `female-tianmei` - Sweet Female
+
+## ⚙️ Configuration
+
+### Provider Settings
+
+Edit `config.py` to configure providers:
+
+```python
+# Select provider
+TTS_PROVIDER = "minimax"  # or "openai", "elevenlabs", etc.
+
+# API Keys
+API_KEYS = {
+    "minimax": "your_minimax_api_key",
+    "openai": "your_openai_api_key",
+}
+
+# Provider-specific config
+MINIMAX_CONFIG = {
+    "api_url": "https://api.ppio.com/v3/minimax-speech-2.8-hd",
+    "timeout": 60,
+    "default_voice_settings": {
+        "speed": 1.0,
+        "pitch": 0,
+        "voice_id": "male-qn-qingse"
+    }
+}
+```
+
+### Voice Parameters (MiniMax)
+
+| Parameter | Description | Range | Default |
+|-----------|-------------|-------|---------|
+| speed | Speech rate | 0.5-2.0 | 1.0 |
+| pitch | Voice pitch | -12 to 12 | 0 |
+| vol | Volume | 0.1-10 | 1.0 |
+| emotion | Emotion | neutral, happy, sad, angry | neutral |
+| voice_id | Voice ID | See available voices | male-qn-qingse |
+
+## 📁 Project Structure
+
+```
+pdf-to-audio/
+├── providers/                 # TTS provider implementations
+│   ├── __init__.py           # Provider factory
+│   ├── base_provider.py      # Abstract base class
+│   └── minimax_provider.py   # MiniMax implementation
+├── pdf_to_audio.py           # Main converter class
+├── quick_start.py            # Quick start script
+├── config_example.py         # Configuration template
+├── requirements.txt          # Python dependencies
+├── README.md                 # Project documentation
+├── LICENSE                   # MIT License
+└── .gitignore               # Git ignore rules
+```
+
+## 🔧 Requirements
+
+- Python 3.7+
+- requests >= 2.31.0
+- PyPDF2 >= 3.0.0
+
+## 🔌 Adding New TTS Providers
+
+The architecture is designed for easy extensibility. To add a new provider:
+
+1. **Create a new provider class** in `providers/` directory:
+
+```python
+# providers/openai_provider.py
+from .base_provider import BaseTTSProvider
+
+class OpenAIProvider(BaseTTSProvider):
+    def text_to_speech(self, text, output_path, voice_settings=None):
+        # Implement OpenAI TTS API call
+        pass
+
+    def get_available_voices(self):
+        return ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+
+    def get_default_voice_settings(self):
+        return {"voice": "alloy", "speed": 1.0}
+```
+
+2. **Register the provider** in `providers/__init__.py`:
+
+```python
+from .openai_provider import OpenAIProvider
+
+PROVIDERS = {
+    'minimax': MiniMaxProvider,
+    'openai': OpenAIProvider,  # Add your provider here
+}
+```
+
+3. **Update config_example.py** with provider-specific settings
+
+4. **Test your implementation** and submit a pull request!
+
+## 📝 Notes
+
+1. **API Keys**: Requires valid API keys for the chosen provider
+2. **PDF Format**: Only supports PDFs with extractable text (not scanned images)
+3. **Network**: Requires stable internet connection for API calls
+4. **API Limits**: Be aware of provider-specific rate limits and quotas
+5. **Text Length**: Long texts are automatically split (default max 5000 characters per chunk)
+
+## 🐛 Troubleshooting
+
+### Empty Text Extraction from PDF
+- **Cause**: PDF may be a scanned image
+- **Solution**: Use OCR tools to convert PDF to searchable text first
+
+### API Returns 401 Error
+- **Cause**: Invalid or expired API key
+- **Solution**: Check and update your API key in config.py
+
+### API Returns 429 Error
+- **Cause**: Rate limit exceeded
+- **Solution**: Add delays between requests or wait before retrying
+
+### Provider Not Found Error
+- **Cause**: Unsupported provider name
+- **Solution**: Check available providers with `get_available_providers()`
+
+## 🤝 Contributing
+
+Contributions are welcome! Here's how you can help:
+
+1. **Add new TTS providers** - Implement support for OpenAI, ElevenLabs, Azure, etc.
+2. **Improve text extraction** - Better handling of PDF formats
+3. **Add features** - OCR support, subtitle generation, audio merging
+4. **Fix bugs** - Report issues or submit fixes
+5. **Improve documentation** - Better examples and tutorials
+
+### Development Process
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [MiniMax](https://www.minimaxi.com/) - For providing the Text-to-Speech API
+- [PyPDF2](https://github.com/py-pdf/pypdf2) - For PDF text extraction
+- All contributors and users of this project
+
+## 📮 Contact
+
+For questions, suggestions, or issues:
+- Open an [Issue](https://github.com/irismaker/pdf-to-audio/issues)
+- Submit a [Pull Request](https://github.com/irismaker/pdf-to-audio/pulls)
+
+## 🗺️ Roadmap
+
+- [ ] Add OpenAI TTS provider
+- [ ] Add ElevenLabs provider
+- [ ] Add Azure TTS provider
+- [ ] Add Google Cloud TTS provider
+- [ ] Implement OCR for scanned PDFs
+- [ ] Add subtitle/caption generation
+- [ ] Add audio file merging for multi-part outputs
+- [ ] Create GUI interface
+- [ ] Add Docker support
+- [ ] Add more languages support
+
+---
+
+⭐ If this project helps you, please give it a star!
+
+Made with ❤️ by the open source community

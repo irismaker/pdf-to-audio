@@ -45,11 +45,11 @@ pip install -r requirements.txt
 
 # 2. Start the server
 python app.py
+# Or if port 5000 is occupied: PORT=5001 python app.py
 
 # 3. Open in browser
-# Visit: http://localhost:5000
-# Note: If port 5000 is already in use, set a different port:
-# PORT=5001 python app.py
+# Default: http://localhost:5000
+# Custom port: http://localhost:5001
 ```
 
 That's it! Upload your PDF, enter your API key, and convert!
@@ -91,9 +91,17 @@ export TTS_API_KEY="your_api_key_here"
 
 ```bash
 python app.py
+# Default port is 5000
+
+# If port 5000 is already in use (common on macOS):
+PORT=5001 python app.py
 ```
 
-Then open your browser and visit: `http://localhost:5000`
+Then open your browser and visit:
+- Default: `http://localhost:5000`
+- Custom port: `http://localhost:5001` (or your configured port)
+
+**Note for macOS users:** Port 5000 is often occupied by AirPlay Receiver. Use `PORT=5001 python app.py` instead.
 
 Features:
 - Upload PDFs directly in your browser

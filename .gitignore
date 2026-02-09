@@ -44,6 +44,14 @@ audio_output/
 *.flac
 *.pcm
 
+# Web app temporary files
+uploads/
+outputs/
+!uploads/.gitkeep
+!outputs/.gitkeep
+*.db
+instance/
+
 # Environment variables
 .env
 .env.local

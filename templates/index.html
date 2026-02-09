@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Audio Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#202123',
+                        secondary: '#343541',
+                        accent: '#10a37f',
+                        'gray-light': '#f7f7f8',
+                        'gray-mid': '#d9d9e3',
+                        'text-primary': '#202123',
+                        'text-secondary': '#6e6e80',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-light min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-mid">
+        <div class="max-w-4xl mx-auto px-4 py-4">
+            <h1 class="text-2xl font-semibold text-text-primary">PDF to Audio Converter</h1>
+            <p class="text-sm text-text-secondary mt-1">Transform your documents into high-quality audio</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Alert Messages -->
+        <div id="alert-container"></div>
+
+        <!-- Step 1: Configure API -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-mid p-6 mb-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white text-sm mr-2">1</span>
+                Configure API
+            </h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="api-key" class="block text-sm font-medium text-text-primary mb-2">
+                        API Key <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="password"
+                        id="api-key"
+                        placeholder="Enter your MiniMax API key"
+                        class="w-full px-4 py-2 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    >
+                    <p class="text-xs text-text-secondary mt-1">Your API key is never stored and only used for this session</p>
+                </div>
+                <div>
+                    <label for="provider" class="block text-sm font-medium text-text-primary mb-2">
+                        Provider
+                    </label>
+                    <select
+                        id="provider"
+                        class="w-full px-4 py-2 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    >
+                        <option value="minimax">MiniMax</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Upload PDF -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-mid p-6 mb-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white text-sm mr-2">2</span>
+                Upload PDF
+            </h2>
+            <div
+                id="drop-zone"
+                class="border-2 border-dashed border-gray-mid rounded-lg p-8 text-center hover:border-accent transition-colors cursor-pointer"
+            >
+                <input type="file" id="pdf-file" accept=".pdf" class="hidden">
+                <div id="upload-prompt">
+                    <svg class="mx-auto h-12 w-12 text-text-secondary" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="mt-2 text-sm text-text-primary">
+                        <span class="font-semibold">Click to upload</span> or drag and drop
+                    </p>
+                    <p class="text-xs text-text-secondary mt-1">PDF files only, up to 50MB</p>
+                </div>
+                <div id="file-info" class="hidden">
+                    <svg class="mx-auto h-12 w-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p id="file-name" class="mt-2 text-sm font-medium text-text-primary"></p>
+                    <p id="file-size" class="text-xs text-text-secondary"></p>
+                    <button id="remove-file" class="mt-2 text-sm text-red-500 hover:text-red-600">Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Customize Voice -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-mid p-6 mb-6">
+            <h2 class="text-lg font-semibold text-text-primary mb-4">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white text-sm mr-2">3</span>
+                Customize Voice <span class="text-xs font-normal text-text-secondary">(Optional)</span>
+            </h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="voice-id" class="block text-sm font-medium text-text-primary mb-2">
+                        Voice
+                    </label>
+                    <select
+                        id="voice-id"
+                        class="w-full px-4 py-2 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    >
+                        <optgroup label="Male Voices">
+                            <option value="male-qn-qingse">Young Male</option>
+                            <option value="male-qn-jingying">Professional Male</option>
+                            <option value="male-qn-badao">Commanding Male</option>
+                            <option value="male-qn-daxuesheng">College Student Male</option>
+                        </optgroup>
+                        <optgroup label="Female Voices">
+                            <option value="female-shaonv">Young Female</option>
+                            <option value="female-yujie">Mature Female</option>
+                            <option value="female-chengshu">Sophisticated Female</option>
+                            <option value="female-tianmei">Sweet Female</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div>
+                    <label for="speed" class="block text-sm font-medium text-text-primary mb-2">
+                        Speed: <span id="speed-value">1.0</span>x
+                    </label>
+                    <input
+                        type="range"
+                        id="speed"
+                        min="0.5"
+                        max="2.0"
+                        step="0.1"
+                        value="1.0"
+                        class="w-full"
+                    >
+                    <div class="flex justify-between text-xs text-text-secondary mt-1">
+                        <span>0.5x (Slower)</span>
+                        <span>2.0x (Faster)</span>
+                    </div>
+                </div>
+                <div>
+                    <label for="pitch" class="block text-sm font-medium text-text-primary mb-2">
+                        Pitch: <span id="pitch-value">0</span>
+                    </label>
+                    <input
+                        type="range"
+                        id="pitch"
+                        min="-12"
+                        max="12"
+                        step="1"
+                        value="0"
+                        class="w-full"
+                    >
+                    <div class="flex justify-between text-xs text-text-secondary mt-1">
+                        <span>-12 (Lower)</span>
+                        <span>+12 (Higher)</span>
+                    </div>
+                </div>
+                <div>
+                    <label for="emotion" class="block text-sm font-medium text-text-primary mb-2">
+                        Emotion
+                    </label>
+                    <select
+                        id="emotion"
+                        class="w-full px-4 py-2 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    >
+                        <option value="calm">Calm</option>
+                        <option value="happy">Happy</option>
+                        <option value="sad">Sad</option>
+                        <option value="angry">Angry</option>
+                        <option value="fearful">Fearful</option>
+                        <option value="disgusted">Disgusted</option>
+                        <option value="surprised">Surprised</option>
+                        <option value="fluent">Fluent</option>
+                        <option value="whisper">Whisper</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Convert Button -->
+        <div class="text-center mb-6">
+            <button
+                id="convert-btn"
+                class="px-8 py-3 bg-accent text-white font-medium rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                <span id="convert-btn-text">Convert to Audio</span>
+                <svg id="convert-btn-spinner" class="hidden inline-block animate-spin ml-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progress-section" class="hidden bg-white rounded-lg shadow-sm border border-gray-mid p-6 mb-6">
+            <h3 class="text-lg font-semibold text-text-primary mb-4">Progress</h3>
+            <div class="space-y-3">
+                <div class="w-full bg-gray-light rounded-full h-2">
+                    <div id="progress-bar" class="bg-accent h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <p id="progress-message" class="text-sm text-text-secondary"></p>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden bg-white rounded-lg shadow-sm border border-gray-mid p-6">
+            <h3 class="text-lg font-semibold text-text-primary mb-4">Generated Audio Files</h3>
+            <div id="results-list" class="space-y-3">
+                <!-- Results will be inserted here -->
+            </div>
+            <button
+                id="download-all-btn"
+                class="hidden mt-4 w-full px-4 py-2 bg-secondary text-white font-medium rounded-lg hover:bg-opacity-90 transition-all"
+            >
+                Download All as ZIP
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-4xl mx-auto px-4 py-8 text-center text-sm text-text-secondary">
+        <p>Built with ❤️ using MiniMax TTS API</p>
+        <p class="mt-2">
+            <a href="https://github.com/irismaker/pdf-to-audio" target="_blank" class="text-accent hover:underline">GitHub</a>
+        </p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -7,7 +7,7 @@ Copy this file to config.py and fill in your settings
 # TTS Provider Selection
 # ============================================================
 # Choose which TTS provider to use
-# Options: 'minimax', 'openai', 'elevenlabs', 'azure', 'google'
+# Options: 'minimax', 'elevenlabs', 'azure', 'google'
 # (Note: Only 'minimax' is currently implemented)
 TTS_PROVIDER = "minimax"
 
@@ -18,7 +18,6 @@ TTS_PROVIDER = "minimax"
 # Add your API keys for different providers
 API_KEYS = {
     "minimax": "your_minimax_api_key_here",
-    # "openai": "your_openai_api_key_here",
     # "elevenlabs": "your_elevenlabs_api_key_here",
     # "azure": "your_azure_api_key_here",
     # "google": "your_google_api_key_here",
@@ -46,14 +45,8 @@ MINIMAX_CONFIG = {
     }
 }
 
-# OpenAI Configuration (Example - not yet implemented)
-OPENAI_CONFIG = {
-    "model": "tts-1-hd",
-    "default_voice_settings": {
-        "voice": "alloy",  # alloy, echo, fable, onyx, nova, shimmer
-        "speed": 1.0
-    }
-}
+# Additional provider configurations can be added here
+# See documentation for how to add new TTS providers
 
 # ElevenLabs Configuration (Example - not yet implemented)
 ELEVENLABS_CONFIG = {

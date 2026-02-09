@@ -19,11 +19,11 @@ A flexible Python tool for converting PDF documents to audio using various TTS p
 
 ### Currently Supported Providers
 
-- ✅ **MiniMax** - High-quality Chinese TTS with multiple voice options
+- ✅ **MiniMax (PPIO)** - High-quality TTS with multiple voice options via PPIO provider
+- ✅ **Novita AI** - MiniMax Speech 2.8 Turbo via Novita AI platform
 - 🔜 **ElevenLabs** - Coming soon
 - 🔜 **Azure TTS** - Coming soon
 - 🔜 **Google Cloud TTS** - Coming soon
-- 🔜 **More providers** - Coming soon
 
 ## 🎨 Web Interface
 
@@ -151,9 +151,9 @@ The server will start on `http://localhost:5000`. Open this URL in your web brow
 #### Using the Web Interface
 
 1. **Configure API**
-   - Enter your MiniMax API key
-   - Configure API URL (default: PPIO provider, or enter your custom endpoint)
-   - Select provider (currently only MiniMax is available)
+   - Enter your API key (MiniMax or Novita AI)
+   - Configure API URL (automatically set based on provider selection)
+   - Select provider (MiniMax via PPIO, or Novita AI)
 
 2. **Upload PDF**
    - Click the upload area or drag and drop your PDF file

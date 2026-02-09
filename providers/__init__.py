@@ -6,11 +6,13 @@ Factory for creating TTS provider instances
 from typing import Dict, Any, Optional
 from .base_provider import BaseTTSProvider
 from .minimax_provider import MiniMaxProvider
+from .novita_provider import NovitaProvider
 
 
 # Registry of available providers
 PROVIDERS = {
     'minimax': MiniMaxProvider,
+    'novita': NovitaProvider,
     # Add more providers here as they are implemented
     # 'elevenlabs': ElevenLabsProvider,
     # 'azure': AzureTTSProvider,
@@ -53,4 +55,4 @@ def get_available_providers() -> list:
     return list(PROVIDERS.keys())
 
 
-__all__ = ['BaseTTSProvider', 'MiniMaxProvider', 'create_provider', 'get_available_providers', 'PROVIDERS']
+__all__ = ['BaseTTSProvider', 'MiniMaxProvider', 'NovitaProvider', 'create_provider', 'get_available_providers', 'PROVIDERS']

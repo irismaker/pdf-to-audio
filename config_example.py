@@ -7,8 +7,7 @@ Copy this file to config.py and fill in your settings
 # TTS Provider Selection
 # ============================================================
 # Choose which TTS provider to use
-# Options: 'minimax', 'elevenlabs', 'azure', 'google'
-# (Note: Only 'minimax' is currently implemented)
+# Options: 'minimax', 'novita', 'elevenlabs', 'azure', 'google'
 TTS_PROVIDER = "minimax"
 
 
@@ -18,6 +17,7 @@ TTS_PROVIDER = "minimax"
 # Add your API keys for different providers
 API_KEYS = {
     "minimax": "your_minimax_api_key_here",
+    "novita": "your_novita_api_key_here",
     # "elevenlabs": "your_elevenlabs_api_key_here",
     # "azure": "your_azure_api_key_here",
     # "google": "your_google_api_key_here",
@@ -35,6 +35,19 @@ MINIMAX_CONFIG = {
     # - MiniMax Official: "https://api.minimax.chat/v1/text_to_speech" (if you have direct access)
     # You can use any MiniMax-compatible API endpoint here
     "api_url": "https://api.ppio.com/v3/minimax-speech-2.8-hd",
+    "timeout": 60,
+    "default_voice_settings": {
+        "vol": 1.0,          # Volume (0.1-10)
+        "speed": 1.0,        # Speech rate (0.5-2.0)
+        "pitch": 0,          # Pitch (-12 to 12)
+        "voice_id": "male-qn-qingse",
+        "emotion": "calm"    # Must be one of: happy, sad, angry, fearful, disgusted, surprised, calm, fluent, whisper
+    }
+}
+
+# Novita Configuration
+NOVITA_CONFIG = {
+    "api_url": "https://api.novita.ai/v3/minimax-speech-2.8-turbo",
     "timeout": 60,
     "default_voice_settings": {
         "vol": 1.0,          # Volume (0.1-10)

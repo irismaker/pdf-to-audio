@@ -53,6 +53,11 @@ function initializeEventListeners() {
     elements.dropZone.addEventListener('dragleave', handleDragLeave);
     elements.dropZone.addEventListener('drop', handleDrop);
 
+    // Provider selection
+    elements.provider.addEventListener('change', () => {
+        updateApiUrlPlaceholder();
+    });
+
     // Voice settings
     elements.speed.addEventListener('input', () => {
         elements.speedValue.textContent = elements.speed.value;
@@ -126,6 +131,18 @@ function removeFile() {
     elements.pdfFile.value = '';
     elements.uploadPrompt.classList.remove('hidden');
     elements.fileInfo.classList.add('hidden');
+}
+
+function updateApiUrlPlaceholder() {
+    const provider = elements.provider.value;
+    const apiUrlMap = {
+        'minimax': 'https://api.ppio.com/v3/minimax-speech-2.8-hd',
+        'novita': 'https://api.novita.ai/v3/minimax-speech-2.8-turbo'
+    };
+
+    const defaultUrl = apiUrlMap[provider] || apiUrlMap['minimax'];
+    elements.apiUrl.value = defaultUrl;
+    elements.apiUrl.placeholder = defaultUrl;
 }
 
 // API Functions

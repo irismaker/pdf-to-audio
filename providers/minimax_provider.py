@@ -133,7 +133,7 @@ class MiniMaxProvider(BaseTTSProvider):
             "speed": 1.0,        # Speech rate (0.5-2.0)
             "pitch": 0,          # Pitch (-12 to 12)
             "voice_id": "male-qn-qingse",
-            "emotion": "neutral"  # neutral, happy, sad, angry
+            "emotion": "calm"    # Must be one of: happy, sad, angry, fearful, disgusted, surprised, calm, fluent, whisper
         }
 
     def validate_settings(self, voice_settings: Dict[str, Any]) -> bool:

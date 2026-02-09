@@ -4,6 +4,7 @@
 let selectedFile = null;
 let currentJobId = null;
 let progressInterval = null;
+let currentAudio = null;  // Global audio control to prevent overlapping playback
 
 // DOM Elements
 const elements = {
@@ -164,6 +165,13 @@ async function loadProviders() {
 }
 
 async function startConversion() {
+    // Stop any playing audio before starting new conversion
+    stopAllAudio();
+
+    // Hide previous results
+    elements.resultsSection.classList.add('hidden');
+    elements.resultsList.innerHTML = '';
+
     // Validate inputs
     if (!elements.apiKey.value.trim()) {
         showAlert('Please enter your API key', 'error');
@@ -312,13 +320,8 @@ function createFileCard(file, index) {
             </div>
         </div>
         <div class="file-card-actions">
-            <button onclick="playAudio('${file.filename}')" class="btn-play">
-                <svg class="inline-block h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
-                </svg>
-                Play
-            </button>
-            <button onclick="downloadFile('${file.filename}')" class="btn-download">
+            <button class="btn-play" data-filename="${file.filename}">▶ Play</button>
+            <button class="btn-download" data-filename="${file.filename}">
                 <svg class="inline-block h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -327,14 +330,80 @@ function createFileCard(file, index) {
         </div>
     `;
 
+    // Add event listeners
+    const playBtn = card.querySelector('.btn-play');
+    const downloadBtn = card.querySelector('.btn-download');
+
+    playBtn.addEventListener('click', function() {
+        toggleAudio(file.filename, this);
+    });
+
+    downloadBtn.addEventListener('click', function() {
+        downloadFile(file.filename);
+    });
+
     return card;
 }
 
-function playAudio(filename) {
-    const audio = new Audio(`/api/download/${currentJobId}/${filename}`);
-    audio.play().catch(error => {
-        showAlert('Failed to play audio: ' + error.message, 'error');
+function stopAllAudio() {
+    // Stop any currently playing audio
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+    }
+
+    // Reset all play buttons
+    document.querySelectorAll('.btn-play').forEach(btn => {
+        btn.textContent = '▶ Play';
+        btn.classList.remove('playing');
     });
+}
+
+function playAudio(filename, buttonElement) {
+    // Stop any currently playing audio first
+    stopAllAudio();
+
+    // Create and play new audio
+    currentAudio = new Audio(`/api/download/${currentJobId}/${filename}`);
+
+    // Update button state
+    if (buttonElement) {
+        buttonElement.textContent = '⏸ Pause';
+        buttonElement.classList.add('playing');
+    }
+
+    // Handle audio end
+    currentAudio.addEventListener('ended', () => {
+        if (buttonElement) {
+            buttonElement.textContent = '▶ Play';
+            buttonElement.classList.remove('playing');
+        }
+        currentAudio = null;
+    });
+
+    // Handle play errors
+    currentAudio.play().catch(error => {
+        showAlert('Failed to play audio: ' + error.message, 'error');
+        if (buttonElement) {
+            buttonElement.textContent = '▶ Play';
+            buttonElement.classList.remove('playing');
+        }
+        currentAudio = null;
+    });
+}
+
+function toggleAudio(filename, buttonElement) {
+    // If this audio is playing, pause it
+    if (currentAudio && buttonElement.classList.contains('playing')) {
+        currentAudio.pause();
+        buttonElement.textContent = '▶ Play';
+        buttonElement.classList.remove('playing');
+        currentAudio = null;
+    } else {
+        // Play the audio
+        playAudio(filename, buttonElement);
+    }
 }
 
 function downloadFile(filename) {

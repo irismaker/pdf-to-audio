@@ -17,6 +17,10 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
+# Disable caching for templates and static files during development
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 # Configuration
 UPLOAD_FOLDER = 'uploads'
 OUTPUT_FOLDER = 'outputs'
@@ -25,6 +29,17 @@ MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 app.config['MAX_CONTENT_LENGTH'] = MAX_FILE_SIZE
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+
+
+# Add no-cache headers to all responses
+@app.after_request
+def add_no_cache_headers(response):
+    """Add headers to prevent caching"""
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, public, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+
 
 # Store conversion jobs in memory
 # Format: {job_id: {status, progress, message, files, created_at}}
@@ -172,7 +187,12 @@ def run_conversion(job_id, pdf_path, api_key, api_url, provider_name, voice_sett
 def index():
     """Serve main interface"""
     cleanup_old_files()  # Clean up old files on each page load
-    return render_template('index.html')
+    response = app.make_response(render_template('index.html'))
+    # Disable caching
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 
 @app.route('/api/providers', methods=['GET'])

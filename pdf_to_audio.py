@@ -21,7 +21,7 @@ class PDFToAudioConverter:
         Initialize the converter with a TTS provider
 
         Args:
-            provider_name: Name of the TTS provider (e.g., 'minimax', 'openai')
+            provider_name: Name of the TTS provider (e.g., 'minimax', 'elevenlabs')
             api_key: API key for the provider
             provider_config: Additional provider-specific configuration
         """

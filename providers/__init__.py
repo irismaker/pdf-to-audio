@@ -12,7 +12,6 @@ from .minimax_provider import MiniMaxProvider
 PROVIDERS = {
     'minimax': MiniMaxProvider,
     # Add more providers here as they are implemented
-    # 'openai': OpenAIProvider,
     # 'elevenlabs': ElevenLabsProvider,
     # 'azure': AzureTTSProvider,
     # 'google': GoogleTTSProvider,
@@ -24,7 +23,7 @@ def create_provider(provider_name: str, api_key: str, config: Optional[Dict[str,
     Factory function to create TTS provider instances
 
     Args:
-        provider_name: Name of the provider (e.g., 'minimax', 'openai')
+        provider_name: Name of the provider (e.g., 'minimax', 'elevenlabs')
         api_key: API key for the provider
         config: Additional configuration options
 

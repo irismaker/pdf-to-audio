@@ -29,6 +29,10 @@ A flexible Python tool for converting PDF documents to audio using various TTS p
 
 The easiest way to use this tool is through the modern web interface:
 
+![Web Interface](screenshots/web-interface.png)
+
+### Key Features
+
 - **No Command Line Required** - Everything in your browser
 - **Flexible API Configuration** - Use PPIO or custom API endpoints
 - **Drag & Drop Upload** - Simply drag your PDF files

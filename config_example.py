@@ -84,7 +84,7 @@ BATCH_SETTINGS = {
 # Audio Output Settings (applies to all providers when applicable)
 AUDIO_SETTINGS = {
     "format": "mp3",
-    "bitrate": 128,      # kbps
+    "bitrate": 128000,   # Must be one of [32000, 64000, 128000, 256000]
     "sample_rate": 24000,  # Hz
     "channel": 1         # 1=mono, 2=stereo
 }

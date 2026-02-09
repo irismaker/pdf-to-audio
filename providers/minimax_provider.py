@@ -55,7 +55,7 @@ class MiniMaxProvider(BaseTTSProvider):
             "voice_setting": settings,
             "audio_setting": {
                 "format": "mp3",
-                "bitrate": 128,
+                "bitrate": 128000,  # Must be one of [32000, 64000, 128000, 256000]
                 "sample_rate": 24000,
                 "channel": 1
             }

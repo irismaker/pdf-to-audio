@@ -51,7 +51,7 @@ class MiniMaxProvider(BaseTTSProvider):
         payload = {
             "text": text,
             "stream": False,
-            "output_format": "mp3",
+            "output_format": "hex",  # Must be "url" or "hex"
             "voice_setting": settings,
             "audio_setting": {
                 "format": "mp3",

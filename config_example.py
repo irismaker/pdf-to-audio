@@ -31,6 +31,10 @@ API_KEYS = {
 
 # MiniMax Configuration
 MINIMAX_CONFIG = {
+    # API URL Options:
+    # - PPIO Provider (recommended): "https://api.ppio.com/v3/minimax-speech-2.8-hd"
+    # - MiniMax Official: "https://api.minimax.chat/v1/text_to_speech" (if you have direct access)
+    # You can use any MiniMax-compatible API endpoint here
     "api_url": "https://api.ppio.com/v3/minimax-speech-2.8-hd",
     "timeout": 60,
     "default_voice_settings": {

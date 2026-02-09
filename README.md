@@ -170,13 +170,31 @@ API_KEYS = {
 
 # Provider-specific config
 MINIMAX_CONFIG = {
-    "api_url": "https://api.ppio.com/v3/minimax-speech-2.8-hd",
+    "api_url": "https://api.ppio.com/v3/minimax-speech-2.8-hd",  # Customize your API endpoint
     "timeout": 60,
     "default_voice_settings": {
         "speed": 1.0,
         "pitch": 0,
         "voice_id": "male-qn-qingse"
     }
+}
+```
+
+### Custom API Endpoints
+
+The project supports custom API endpoints. You can use:
+
+- **PPIO Provider** (default): `https://api.ppio.com/v3/minimax-speech-2.8-hd`
+- **MiniMax Official API**: `https://api.minimax.chat/v1/text_to_speech` (if you have direct access)
+- **Any MiniMax-compatible API**: Configure your own endpoint in `config.py`
+
+Simply change the `api_url` in your provider configuration:
+
+```python
+MINIMAX_CONFIG = {
+    "api_url": "YOUR_CUSTOM_API_ENDPOINT",
+    "timeout": 60,
+    # ... other settings
 }
 ```
 

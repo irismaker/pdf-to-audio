@@ -48,6 +48,8 @@ python app.py
 
 # 3. Open in browser
 # Visit: http://localhost:5000
+# Note: If port 5000 is already in use, set a different port:
+# PORT=5001 python app.py
 ```
 
 That's it! Upload your PDF, enter your API key, and convert!
@@ -79,7 +81,7 @@ cp config_example.py config.py
 **Method B: Using Environment Variables**
 
 ```bash
-export TTS_PROVIDER="minimax"
+export TTS_PROVIDER="minimax"  # or "novita"
 export TTS_API_KEY="your_api_key_here"
 ```
 
@@ -146,7 +148,11 @@ The web interface provides the easiest way to convert PDFs to audio without any 
 python app.py
 ```
 
-The server will start on `http://localhost:5000`. Open this URL in your web browser.
+The server will start on `http://localhost:5000` by default (or the port specified by the PORT environment variable). Open this URL in your web browser.
+
+**Note for macOS users:** If port 5000 is already in use by AirPlay Receiver, you can either:
+- Disable AirPlay Receiver in System Settings > General > AirDrop & Handoff
+- Or run the app on a different port: `PORT=5001 python app.py`
 
 #### Using the Web Interface
 
@@ -198,6 +204,13 @@ from pdf_to_audio import PDFToAudioConverter
 converter = PDFToAudioConverter(
     provider_name="minimax",
     api_key="your_api_key",
+    provider_config={"timeout": 60}
+)
+
+# Or create converter with Novita
+converter = PDFToAudioConverter(
+    provider_name="novita",
+    api_key="your_novita_api_key",
     provider_config={"timeout": 60}
 )
 
@@ -254,11 +267,12 @@ Edit `config.py` to configure providers:
 
 ```python
 # Select provider
-TTS_PROVIDER = "minimax"  # or "elevenlabs", "azure", etc.
+TTS_PROVIDER = "minimax"  # or "novita", "elevenlabs", "azure", etc.
 
 # API Keys
 API_KEYS = {
     "minimax": "your_minimax_api_key",
+    "novita": "your_novita_api_key",
     # "elevenlabs": "your_elevenlabs_api_key",
 }
 
@@ -272,13 +286,24 @@ MINIMAX_CONFIG = {
         "voice_id": "male-qn-qingse"
     }
 }
+
+NOVITA_CONFIG = {
+    "api_url": "https://api.novita.ai/v3/minimax-speech-2.8-turbo",
+    "timeout": 60,
+    "default_voice_settings": {
+        "speed": 1.0,
+        "pitch": 0,
+        "voice_id": "male-qn-qingse"
+    }
+}
 ```
 
 ### Custom API Endpoints
 
 The project supports custom API endpoints. You can use:
 
-- **PPIO Provider** (default): `https://api.ppio.com/v3/minimax-speech-2.8-hd`
+- **PPIO Provider** (MiniMax): `https://api.ppio.com/v3/minimax-speech-2.8-hd`
+- **Novita AI** (MiniMax Speech 2.8 Turbo): `https://api.novita.ai/v3/minimax-speech-2.8-turbo`
 - **MiniMax Official API**: `https://api.minimax.chat/v1/text_to_speech` (if you have direct access)
 - **Any MiniMax-compatible API**: Configure your own endpoint in `config.py`
 
@@ -286,6 +311,12 @@ Simply change the `api_url` in your provider configuration:
 
 ```python
 MINIMAX_CONFIG = {
+    "api_url": "YOUR_CUSTOM_API_ENDPOINT",
+    "timeout": 60,
+    # ... other settings
+}
+
+NOVITA_CONFIG = {
     "api_url": "YOUR_CUSTOM_API_ENDPOINT",
     "timeout": 60,
     # ... other settings

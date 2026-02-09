@@ -356,5 +356,15 @@ if __name__ == '__main__':
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+    # Get port from environment variable or use default
+    port = int(os.environ.get('PORT', 5000))
+
     # Run Flask app
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    print(f"\n{'='*60}")
+    print(f"🎙️  PDF to Audio Converter")
+    print(f"{'='*60}")
+    print(f"🌐 Server running on: http://localhost:{port}")
+    print(f"📱 Or access from other devices: http://0.0.0.0:{port}")
+    print(f"{'='*60}\n")
+
+    app.run(debug=True, host='0.0.0.0', port=port)

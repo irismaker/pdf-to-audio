@@ -23,10 +23,11 @@ This will install:
 python3 app.py
 ```
 
-You should see output like:
-```
- * Running on http://127.0.0.1:5000
- * Running on http://192.168.x.x:5000
+You should see output showing the server is running on port 5000 (default).
+
+**If port 5000 is already in use** (common on macOS with AirPlay):
+```bash
+PORT=5001 python3 app.py
 ```
 
 ### Step 3: Open in Browser
@@ -34,6 +35,11 @@ You should see output like:
 Open your web browser and visit:
 ```
 http://localhost:5000
+```
+
+Or if you're using a custom port:
+```
+http://localhost:5001
 ```
 
 ## 📝 Using the Interface
@@ -165,10 +171,10 @@ To access the web interface from other devices on your network:
 
 2. On the other device, visit:
    ```
-   http://YOUR_IP_ADDRESS:5000
+   http://YOUR_IP_ADDRESS:PORT
    ```
 
-   Example: `http://192.168.1.100:5000`
+   Example: `http://192.168.1.100:5000` (or whatever port you're using)
 
 ## 🛑 Stopping the Server
 

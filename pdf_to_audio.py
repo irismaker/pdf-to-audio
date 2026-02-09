@@ -6,8 +6,10 @@ Convert PDF documents to audio using various TTS providers
 
 import os
 import sys
+import re
 from pathlib import Path
 from typing import List, Optional, Dict, Any
+from datetime import datetime
 import PyPDF2
 
 from providers import create_provider, get_available_providers
@@ -92,6 +94,70 @@ class PDFToAudioConverter:
 
         return chunks
 
+    def extract_keywords(self, text: str, max_words: int = 3) -> str:
+        """
+        Extract keywords from text for filename generation
+
+        Args:
+            text: Text to extract keywords from
+            max_words: Maximum number of keywords to extract
+
+        Returns:
+            Concatenated keywords suitable for filename
+        """
+        # Remove special characters and extra whitespace
+        clean_text = re.sub(r'[^\w\s]', ' ', text)
+        clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+
+        # Get first few meaningful words (skip common words)
+        common_words = {'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+                       'of', 'with', 'by', 'from', 'is', 'was', 'are', 'were', 'be', 'been',
+                       'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+                       'should', 'may', 'might', 'can', 'this', 'that', 'these', 'those'}
+
+        words = clean_text.lower().split()
+        keywords = []
+
+        for word in words:
+            if word not in common_words and len(word) > 2:
+                keywords.append(word)
+                if len(keywords) >= max_words:
+                    break
+
+        # If no keywords found, use first few words
+        if not keywords:
+            keywords = words[:max_words]
+
+        # Join keywords with underscore, limit total length
+        keyword_str = '_'.join(keywords)
+        return keyword_str[:30]  # Limit to 30 characters
+
+    def generate_filename(self, chunk_text: str, part_num: int, total_parts: int) -> str:
+        """
+        Generate a descriptive filename for audio output
+
+        Args:
+            chunk_text: Text content of the chunk
+            part_num: Current part number (1-indexed)
+            total_parts: Total number of parts
+
+        Returns:
+            Filename string (without extension)
+        """
+        # Get current date
+        date_str = datetime.now().strftime('%Y%m%d')
+
+        # Extract keywords from chunk
+        keywords = self.extract_keywords(chunk_text)
+
+        # Format: YYYYMMDD_partN_keywords
+        if total_parts > 1:
+            filename = f"{date_str}_part{part_num}_{keywords}"
+        else:
+            filename = f"{date_str}_{keywords}"
+
+        return filename
+
     def convert_pdf_to_audio(self, pdf_path: str, output_dir: Optional[str] = None,
                             voice_settings: Optional[Dict[str, Any]] = None) -> bool:
         """
@@ -124,10 +190,9 @@ class PDFToAudioConverter:
         # Convert each chunk
         success_count = 0
         for i, chunk in enumerate(chunks, 1):
-            if len(chunks) > 1:
-                output_path = os.path.join(output_dir, f"{pdf_name}_part{i}.mp3")
-            else:
-                output_path = os.path.join(output_dir, f"{pdf_name}.mp3")
+            # Generate descriptive filename with date and keywords
+            filename = self.generate_filename(chunk, i, len(chunks))
+            output_path = os.path.join(output_dir, f"{filename}.mp3")
 
             print(f"[{i}/{len(chunks)}] Processing chunk {i}")
             if self.provider.text_to_speech(chunk, output_path, voice_settings):

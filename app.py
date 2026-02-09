@@ -135,18 +135,15 @@ def run_conversion(job_id, pdf_path, api_key, api_url, provider_name, voice_sett
 
         # Convert each chunk
         generated_files = []
-        pdf_basename = os.path.splitext(os.path.basename(pdf_path))[0]
 
         for i, chunk in enumerate(chunks, 1):
             with jobs_lock:
                 conversion_jobs[job_id]['progress'] = int((i - 1) / total_chunks * 100)
                 conversion_jobs[job_id]['message'] = f'Converting part {i} of {total_chunks}...'
 
-            # Generate output filename
-            if total_chunks == 1:
-                output_filename = f"{pdf_basename}.mp3"
-            else:
-                output_filename = f"{pdf_basename}_part{i}.mp3"
+            # Generate descriptive filename with date and keywords
+            filename = converter.generate_filename(chunk, i, total_chunks)
+            output_filename = f"{filename}.mp3"
 
             output_path = os.path.join(output_dir, output_filename)
 

@@ -19,8 +19,8 @@ A flexible Python tool for converting PDF documents to audio using various TTS p
 
 ### Currently Supported Providers
 
-- ✅ **MiniMax (PPIO)** - High-quality TTS with multiple voice options via PPIO provider
-- ✅ **Novita AI** - MiniMax Speech 2.8 Turbo via Novita AI platform
+- ✅ **PPIO** - High-quality TTS using MiniMax Speech 2.8 HD model
+- ✅ **Novita AI** - High-quality TTS using MiniMax Speech 2.8 Turbo model
 - ✅ **ElevenLabs** - Premium quality TTS with realistic voices and voice cloning
 - ✅ **Azure Cognitive Services** - Microsoft's TTS with 400+ voices in 140+ languages
 - ✅ **Google Cloud TTS** - Google's WaveNet and Neural2 voices in 40+ languages
@@ -165,9 +165,10 @@ The server will start on `http://localhost:5000` by default (or the port specifi
 #### Using the Web Interface
 
 1. **Configure API**
-   - Enter your API key (MiniMax or Novita AI)
-   - Configure API URL (automatically set based on provider selection)
-   - Select provider (MiniMax via PPIO, or Novita AI)
+   - Select provider (PPIO, Novita AI, ElevenLabs, Azure, or Google Cloud)
+   - Enter your API key for the selected provider
+   - API URL automatically updates based on provider selection
+   - Optionally customize API endpoint
 
 2. **Upload PDF**
    - Click the upload area or drag and drop your PDF file
@@ -215,11 +216,30 @@ converter = PDFToAudioConverter(
     provider_config={"timeout": 60}
 )
 
-# Or create converter with Novita
+# Or use other providers
+# Novita AI
 converter = PDFToAudioConverter(
     provider_name="novita",
-    api_key="your_novita_api_key",
-    provider_config={"timeout": 60}
+    api_key="your_novita_api_key"
+)
+
+# ElevenLabs
+converter = PDFToAudioConverter(
+    provider_name="elevenlabs",
+    api_key="your_elevenlabs_api_key"
+)
+
+# Azure Cognitive Services
+converter = PDFToAudioConverter(
+    provider_name="azure",
+    api_key="your_azure_key",
+    provider_config={"region": "eastus"}
+)
+
+# Google Cloud TTS
+converter = PDFToAudioConverter(
+    provider_name="google",
+    api_key="your_google_api_key"
 )
 
 # Convert single file
@@ -342,15 +362,15 @@ GOOGLE_CONFIG = {
 
 ### Custom API Endpoints
 
-The project supports custom API endpoints. You can use:
+The project supports custom API endpoints. Default endpoints for each provider:
 
-- **PPIO Provider** (MiniMax): `https://api.ppio.com/v3/minimax-speech-2.8-hd`
-- **Novita AI** (MiniMax Speech 2.8 Turbo): `https://api.novita.ai/v3/minimax-speech-2.8-turbo`
+- **PPIO**: `https://api.ppio.com/v3/minimax-speech-2.8-hd`
+- **Novita AI**: `https://api.novita.ai/v3/minimax-speech-2.8-turbo`
 - **ElevenLabs**: `https://api.elevenlabs.io/v1/text-to-speech`
-- **Azure**: `https://{region}.tts.speech.microsoft.com/cognitiveservices/v1`
+- **Azure**: `https://{region}.tts.speech.microsoft.com/cognitiveservices/v1` (region configurable)
 - **Google Cloud**: `https://texttospeech.googleapis.com/v1/text:synthesize`
-- **MiniMax Official API**: `https://api.minimax.chat/v1/text_to_speech` (if you have direct access)
-- **Any compatible API**: Configure your own endpoint in `config.py`
+
+You can customize any endpoint in `config.py` or through the web interface.
 
 Simply change the `api_url` in your provider configuration:
 
@@ -468,11 +488,12 @@ PROVIDERS = {
 
 Contributions are welcome! Here's how you can help:
 
-1. **Add new TTS providers** - Implement support for ElevenLabs, Azure, Google Cloud, etc.
-2. **Improve text extraction** - Better handling of PDF formats
-3. **Add features** - OCR support, subtitle generation, audio merging
+1. **Add new TTS providers** - See [ADDING_NEW_PROVIDERS.md](ADDING_NEW_PROVIDERS.md) for a complete guide
+2. **Improve text extraction** - Better handling of PDF formats and scanned documents
+3. **Add features** - OCR support, subtitle generation, audio merging, batch processing
 4. **Fix bugs** - Report issues or submit fixes
-5. **Improve documentation** - Better examples and tutorials
+5. **Improve documentation** - Better examples, tutorials, and translations
+6. **Test providers** - Help test and improve existing provider implementations
 
 ### Development Process
 
@@ -500,15 +521,21 @@ For questions, suggestions, or issues:
 
 ## 🗺️ Roadmap
 
-- [ ] Add ElevenLabs provider
-- [ ] Add Azure TTS provider
-- [ ] Add Google Cloud TTS provider
+### ✅ Completed
+- [x] Add ElevenLabs provider
+- [x] Add Azure TTS provider
+- [x] Add Google Cloud TTS provider
+- [x] Web interface with modern design
+- [x] Multiple TTS provider support
+
+### 🔮 Future Enhancements
 - [ ] Implement OCR for scanned PDFs
 - [ ] Add subtitle/caption generation
 - [ ] Add audio file merging for multi-part outputs
-- [ ] Create GUI interface
 - [ ] Add Docker support
 - [ ] Add more languages support
+- [ ] Batch processing improvements
+- [ ] Voice preview feature
 
 ---
 

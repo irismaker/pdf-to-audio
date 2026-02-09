@@ -4,7 +4,6 @@ Implementation for MiniMax Text-to-Speech API
 """
 
 import requests
-import base64
 from typing import Dict, Any, Optional
 from .base_provider import BaseTTSProvider
 
@@ -73,9 +72,9 @@ class MiniMaxProvider(BaseTTSProvider):
             if response.status_code == 200:
                 result = response.json()
 
-                # Handle base64 encoded audio data
+                # Handle hex encoded audio data
                 if 'data' in result and 'audio' in result['data']:
-                    audio_data = base64.b64decode(result['data']['audio'])
+                    audio_data = bytes.fromhex(result['data']['audio'])
                     with open(output_path, 'wb') as f:
                         f.write(audio_data)
                     print(f"✓ Audio saved: {output_path}\n")

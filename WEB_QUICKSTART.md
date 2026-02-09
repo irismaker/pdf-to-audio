@@ -39,7 +39,10 @@ http://localhost:5000
 ## 📝 Using the Interface
 
 ### 1. Configure API
-- Enter your MiniMax API key in the "API Key" field
+- **API Key**: Enter your MiniMax API key (required)
+- **API URL**: Use the default PPIO endpoint or enter your custom MiniMax-compatible API URL
+  - Default: `https://api.ppio.com/v3/minimax-speech-2.8-hd` (recommended)
+  - You can change this to use MiniMax official API or other compatible endpoints
 - Your API key is never stored and only used for this session
 
 ### 2. Upload PDF

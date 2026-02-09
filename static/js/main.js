@@ -8,6 +8,7 @@ let progressInterval = null;
 // DOM Elements
 const elements = {
     apiKey: document.getElementById('api-key'),
+    apiUrl: document.getElementById('api-url'),
     provider: document.getElementById('provider'),
     pdfFile: document.getElementById('pdf-file'),
     dropZone: document.getElementById('drop-zone'),
@@ -162,6 +163,7 @@ async function startConversion() {
     const formData = new FormData();
     formData.append('pdf_file', selectedFile);
     formData.append('api_key', elements.apiKey.value.trim());
+    formData.append('api_url', elements.apiUrl.value.trim());
     formData.append('provider', elements.provider.value);
     formData.append('voice_id', elements.voiceId.value);
     formData.append('speed', elements.speed.value);

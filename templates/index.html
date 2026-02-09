@@ -68,6 +68,19 @@
                         <option value="minimax">MiniMax</option>
                     </select>
                 </div>
+                <div>
+                    <label for="api-url" class="block text-sm font-medium text-text-primary mb-2">
+                        API URL <span class="text-xs text-text-secondary">(Optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="api-url"
+                        placeholder="https://api.ppio.com/v3/minimax-speech-2.8-hd"
+                        value="https://api.ppio.com/v3/minimax-speech-2.8-hd"
+                        class="w-full px-4 py-2 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    >
+                    <p class="text-xs text-text-secondary mt-1">Use PPIO provider (default) or enter your custom MiniMax-compatible API endpoint</p>
+                </div>
             </div>
         </div>
 

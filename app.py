@@ -80,18 +80,22 @@ def cleanup_old_files():
             del conversion_jobs[job_id]
 
 
-def run_conversion(job_id, pdf_path, api_key, provider_name, voice_settings, output_dir):
+def run_conversion(job_id, pdf_path, api_key, api_url, provider_name, voice_settings, output_dir):
     """Run PDF to audio conversion in background thread"""
     try:
         with jobs_lock:
             conversion_jobs[job_id]['status'] = 'processing'
             conversion_jobs[job_id]['message'] = 'Initializing converter...'
 
-        # Create converter
+        # Create converter with custom API URL if provided
+        provider_config = {"timeout": 120}
+        if api_url:
+            provider_config["api_url"] = api_url
+
         converter = PDFToAudioConverter(
             provider_name=provider_name,
             api_key=api_key,
-            provider_config={"timeout": 120}
+            provider_config=provider_config
         )
 
         with jobs_lock:
@@ -224,6 +228,7 @@ def convert():
         if not api_key:
             return jsonify({'success': False, 'error': 'API key is required'}), 400
 
+        api_url = request.form.get('api_url', '').strip()
         provider_name = request.form.get('provider', 'minimax')
 
         # Get voice settings
@@ -265,7 +270,7 @@ def convert():
         # Start conversion in background thread
         thread = threading.Thread(
             target=run_conversion,
-            args=(job_id, pdf_path, api_key, provider_name, voice_settings, output_dir)
+            args=(job_id, pdf_path, api_key, api_url, provider_name, voice_settings, output_dir)
         )
         thread.daemon = True
         thread.start()

@@ -137,7 +137,10 @@ function updateApiUrlPlaceholder() {
     const provider = elements.provider.value;
     const apiUrlMap = {
         'minimax': 'https://api.ppio.com/v3/minimax-speech-2.8-hd',
-        'novita': 'https://api.novita.ai/v3/minimax-speech-2.8-turbo'
+        'novita': 'https://api.novita.ai/v3/minimax-speech-2.8-turbo',
+        'elevenlabs': 'https://api.elevenlabs.io/v1/text-to-speech',
+        'azure': 'https://eastus.tts.speech.microsoft.com/cognitiveservices/v1',
+        'google': 'https://texttospeech.googleapis.com/v1/text:synthesize'
     };
 
     const defaultUrl = apiUrlMap[provider] || apiUrlMap['minimax'];

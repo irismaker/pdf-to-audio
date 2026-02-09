@@ -7,16 +7,18 @@ from typing import Dict, Any, Optional
 from .base_provider import BaseTTSProvider
 from .minimax_provider import MiniMaxProvider
 from .novita_provider import NovitaProvider
+from .elevenlabs_provider import ElevenLabsProvider
+from .azure_provider import AzureTTSProvider
+from .google_provider import GoogleTTSProvider
 
 
 # Registry of available providers
 PROVIDERS = {
     'minimax': MiniMaxProvider,
     'novita': NovitaProvider,
-    # Add more providers here as they are implemented
-    # 'elevenlabs': ElevenLabsProvider,
-    # 'azure': AzureTTSProvider,
-    # 'google': GoogleTTSProvider,
+    'elevenlabs': ElevenLabsProvider,
+    'azure': AzureTTSProvider,
+    'google': GoogleTTSProvider,
 }
 
 
@@ -55,4 +57,14 @@ def get_available_providers() -> list:
     return list(PROVIDERS.keys())
 
 
-__all__ = ['BaseTTSProvider', 'MiniMaxProvider', 'NovitaProvider', 'create_provider', 'get_available_providers', 'PROVIDERS']
+__all__ = [
+    'BaseTTSProvider',
+    'MiniMaxProvider',
+    'NovitaProvider',
+    'ElevenLabsProvider',
+    'AzureTTSProvider',
+    'GoogleTTSProvider',
+    'create_provider',
+    'get_available_providers',
+    'PROVIDERS'
+]

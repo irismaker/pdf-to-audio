@@ -8,7 +8,7 @@ Copy this file to config.py and fill in your settings
 # ============================================================
 # Choose which TTS provider to use
 # Options: 'minimax', 'novita', 'elevenlabs', 'azure', 'google'
-TTS_PROVIDER = "minimax"
+TTS_PROVIDER = "minimax"  # Default provider
 
 
 # ============================================================
@@ -18,9 +18,9 @@ TTS_PROVIDER = "minimax"
 API_KEYS = {
     "minimax": "your_minimax_api_key_here",
     "novita": "your_novita_api_key_here",
-    # "elevenlabs": "your_elevenlabs_api_key_here",
-    # "azure": "your_azure_api_key_here",
-    # "google": "your_google_api_key_here",
+    "elevenlabs": "your_elevenlabs_api_key_here",
+    "azure": "your_azure_subscription_key_here",
+    "google": "your_google_cloud_api_key_here",
 }
 
 
@@ -58,16 +58,42 @@ NOVITA_CONFIG = {
     }
 }
 
-# Additional provider configurations can be added here
-# See documentation for how to add new TTS providers
-
-# ElevenLabs Configuration (Example - not yet implemented)
+# ElevenLabs Configuration
 ELEVENLABS_CONFIG = {
-    "model_id": "eleven_multilingual_v2",
+    "api_url": "https://api.elevenlabs.io/v1/text-to-speech",
+    "timeout": 60,
     "default_voice_settings": {
-        "voice_id": "21m00Tcm4TlvDq8ikWAM",
-        "stability": 0.5,
-        "similarity_boost": 0.75
+        "voice_id": "21m00Tcm4TlvDq8ikWAM",  # Rachel
+        "model_id": "eleven_multilingual_v2",
+        "stability": 0.5,              # 0-1
+        "similarity_boost": 0.75,      # 0-1
+        "style": 0.0,                  # 0-1
+        "use_speaker_boost": True
+    }
+}
+
+# Azure Cognitive Services TTS Configuration
+AZURE_CONFIG = {
+    "region": "eastus",  # Change to your Azure region
+    "timeout": 60,
+    "default_voice_settings": {
+        "voice_name": "en-US-AriaNeural",
+        "rate": "1.0",      # 0.5-2.0
+        "pitch": "+0Hz"     # e.g., "+10Hz", "-5Hz"
+    }
+}
+
+# Google Cloud TTS Configuration
+GOOGLE_CONFIG = {
+    "api_url": "https://texttospeech.googleapis.com/v1/text:synthesize",
+    "timeout": 60,
+    "default_voice_settings": {
+        "language_code": "en-US",
+        "voice_name": "en-US-Neural2-F",
+        "ssml_gender": "FEMALE",
+        "speaking_rate": 1.0,          # 0.25-4.0
+        "pitch": 0.0,                  # -20.0 to 20.0
+        "volume_gain_db": 0.0          # -96.0 to 16.0
     }
 }
 

@@ -21,9 +21,9 @@ A flexible Python tool for converting PDF documents to audio using various TTS p
 
 - ✅ **MiniMax (PPIO)** - High-quality TTS with multiple voice options via PPIO provider
 - ✅ **Novita AI** - MiniMax Speech 2.8 Turbo via Novita AI platform
-- 🔜 **ElevenLabs** - Coming soon
-- 🔜 **Azure TTS** - Coming soon
-- 🔜 **Google Cloud TTS** - Coming soon
+- ✅ **ElevenLabs** - Premium quality TTS with realistic voices and voice cloning
+- ✅ **Azure Cognitive Services** - Microsoft's TTS with 400+ voices in 140+ languages
+- ✅ **Google Cloud TTS** - Google's WaveNet and Neural2 voices in 40+ languages
 
 ## 🎨 Web Interface
 
@@ -81,7 +81,7 @@ cp config_example.py config.py
 **Method B: Using Environment Variables**
 
 ```bash
-export TTS_PROVIDER="minimax"  # or "novita"
+export TTS_PROVIDER="minimax"  # or "novita", "elevenlabs", "azure", "google"
 export TTS_API_KEY="your_api_key_here"
 ```
 
@@ -281,7 +281,9 @@ TTS_PROVIDER = "minimax"  # or "novita", "elevenlabs", "azure", etc.
 API_KEYS = {
     "minimax": "your_minimax_api_key",
     "novita": "your_novita_api_key",
-    # "elevenlabs": "your_elevenlabs_api_key",
+    "elevenlabs": "your_elevenlabs_api_key",
+    "azure": "your_azure_subscription_key",
+    "google": "your_google_cloud_api_key",
 }
 
 # Provider-specific config
@@ -304,6 +306,38 @@ NOVITA_CONFIG = {
         "voice_id": "male-qn-qingse"
     }
 }
+
+ELEVENLABS_CONFIG = {
+    "api_url": "https://api.elevenlabs.io/v1/text-to-speech",
+    "timeout": 60,
+    "default_voice_settings": {
+        "voice_id": "21m00Tcm4TlvDq8ikWAM",  # Rachel
+        "model_id": "eleven_multilingual_v2",
+        "stability": 0.5,
+        "similarity_boost": 0.75
+    }
+}
+
+AZURE_CONFIG = {
+    "region": "eastus",
+    "timeout": 60,
+    "default_voice_settings": {
+        "voice_name": "en-US-AriaNeural",
+        "rate": "1.0",
+        "pitch": "+0Hz"
+    }
+}
+
+GOOGLE_CONFIG = {
+    "api_url": "https://texttospeech.googleapis.com/v1/text:synthesize",
+    "timeout": 60,
+    "default_voice_settings": {
+        "language_code": "en-US",
+        "voice_name": "en-US-Neural2-F",
+        "speaking_rate": 1.0,
+        "pitch": 0.0
+    }
+}
 ```
 
 ### Custom API Endpoints
@@ -312,8 +346,11 @@ The project supports custom API endpoints. You can use:
 
 - **PPIO Provider** (MiniMax): `https://api.ppio.com/v3/minimax-speech-2.8-hd`
 - **Novita AI** (MiniMax Speech 2.8 Turbo): `https://api.novita.ai/v3/minimax-speech-2.8-turbo`
+- **ElevenLabs**: `https://api.elevenlabs.io/v1/text-to-speech`
+- **Azure**: `https://{region}.tts.speech.microsoft.com/cognitiveservices/v1`
+- **Google Cloud**: `https://texttospeech.googleapis.com/v1/text:synthesize`
 - **MiniMax Official API**: `https://api.minimax.chat/v1/text_to_speech` (if you have direct access)
-- **Any MiniMax-compatible API**: Configure your own endpoint in `config.py`
+- **Any compatible API**: Configure your own endpoint in `config.py`
 
 Simply change the `api_url` in your provider configuration:
 

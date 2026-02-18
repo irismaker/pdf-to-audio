@@ -5,12 +5,19 @@ let selectedFile = null;
 let currentJobId = null;
 let progressInterval = null;
 let currentAudio = null;  // Global audio control to prevent overlapping playback
+let previewAudio = null;  // Audio element for preview playback
+let inputMode = 'pdf';  // 'pdf' or 'text'
 
 // DOM Elements
 const elements = {
     apiKey: document.getElementById('api-key'),
     apiUrl: document.getElementById('api-url'),
     provider: document.getElementById('provider'),
+    language: document.getElementById('language'),
+    tabPdf: document.getElementById('tab-pdf'),
+    tabText: document.getElementById('tab-text'),
+    pdfSection: document.getElementById('pdf-section'),
+    textSection: document.getElementById('text-section'),
     pdfFile: document.getElementById('pdf-file'),
     dropZone: document.getElementById('drop-zone'),
     uploadPrompt: document.getElementById('upload-prompt'),
@@ -18,12 +25,20 @@ const elements = {
     fileName: document.getElementById('file-name'),
     fileSize: document.getElementById('file-size'),
     removeFileBtn: document.getElementById('remove-file'),
+    textInput: document.getElementById('text-input'),
+    textCharCount: document.getElementById('text-char-count'),
+    clearTextBtn: document.getElementById('clear-text-btn'),
     voiceId: document.getElementById('voice-id'),
     speed: document.getElementById('speed'),
     speedValue: document.getElementById('speed-value'),
     pitch: document.getElementById('pitch'),
     pitchValue: document.getElementById('pitch-value'),
     emotion: document.getElementById('emotion'),
+    previewBtn: document.getElementById('preview-btn'),
+    previewBtnText: document.getElementById('preview-btn-text'),
+    previewBtnSpinner: document.getElementById('preview-btn-spinner'),
+    stopPreviewBtn: document.getElementById('stop-preview-btn'),
+    previewAudioElement: document.getElementById('preview-audio'),
     convertBtn: document.getElementById('convert-btn'),
     convertBtnText: document.getElementById('convert-btn-text'),
     convertBtnSpinner: document.getElementById('convert-btn-spinner'),
@@ -40,10 +55,15 @@ const elements = {
 document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     loadProviders();
+    loadVoicesForProvider(); // Load initial voices
 });
 
 // Event Listeners
 function initializeEventListeners() {
+    // Tab switching
+    elements.tabPdf.addEventListener('click', () => switchTab('pdf'));
+    elements.tabText.addEventListener('click', () => switchTab('text'));
+
     // File upload
     elements.dropZone.addEventListener('click', () => elements.pdfFile.click());
     elements.pdfFile.addEventListener('change', handleFileSelect);
@@ -54,9 +74,19 @@ function initializeEventListeners() {
     elements.dropZone.addEventListener('dragleave', handleDragLeave);
     elements.dropZone.addEventListener('drop', handleDrop);
 
+    // Text input
+    elements.textInput.addEventListener('input', updateCharCount);
+    elements.clearTextBtn.addEventListener('click', clearText);
+
     // Provider selection
     elements.provider.addEventListener('change', () => {
         updateApiUrlPlaceholder();
+        loadVoicesForProvider();
+    });
+
+    // Language selection
+    elements.language.addEventListener('change', () => {
+        loadVoicesForProvider();
     });
 
     // Voice settings
@@ -67,11 +97,53 @@ function initializeEventListeners() {
         elements.pitchValue.textContent = elements.pitch.value;
     });
 
+    // Preview buttons
+    elements.previewBtn.addEventListener('click', previewVoice);
+    elements.stopPreviewBtn.addEventListener('click', stopPreview);
+
     // Convert button
     elements.convertBtn.addEventListener('click', startConversion);
 
     // Download all button
     elements.downloadAllBtn.addEventListener('click', downloadAllFiles);
+}
+
+// Tab Switching
+function switchTab(tab) {
+    inputMode = tab;
+
+    if (tab === 'pdf') {
+        // Show PDF section, hide text section
+        elements.pdfSection.classList.remove('hidden');
+        elements.textSection.classList.add('hidden');
+
+        // Update tab buttons
+        elements.tabPdf.classList.add('active', 'border-accent', 'text-accent');
+        elements.tabPdf.classList.remove('border-transparent', 'text-text-secondary');
+        elements.tabText.classList.remove('active', 'border-accent', 'text-accent');
+        elements.tabText.classList.add('border-transparent', 'text-text-secondary');
+    } else {
+        // Show text section, hide PDF section
+        elements.textSection.classList.remove('hidden');
+        elements.pdfSection.classList.add('hidden');
+
+        // Update tab buttons
+        elements.tabText.classList.add('active', 'border-accent', 'text-accent');
+        elements.tabText.classList.remove('border-transparent', 'text-text-secondary');
+        elements.tabPdf.classList.remove('active', 'border-accent', 'text-accent');
+        elements.tabPdf.classList.add('border-transparent', 'text-text-secondary');
+    }
+}
+
+// Text Input Handling
+function updateCharCount() {
+    const charCount = elements.textInput.value.length;
+    elements.textCharCount.textContent = charCount.toLocaleString();
+}
+
+function clearText() {
+    elements.textInput.value = '';
+    updateCharCount();
 }
 
 // File Handling
@@ -180,19 +252,36 @@ async function startConversion() {
         return;
     }
 
-    if (!selectedFile) {
-        showAlert('Please select a PDF file', 'error');
-        elements.dropZone.classList.add('shake');
-        setTimeout(() => elements.dropZone.classList.remove('shake'), 500);
-        return;
+    // Validate based on input mode
+    if (inputMode === 'pdf') {
+        if (!selectedFile) {
+            showAlert('Please select a PDF file', 'error');
+            elements.dropZone.classList.add('shake');
+            setTimeout(() => elements.dropZone.classList.remove('shake'), 500);
+            return;
+        }
+    } else {
+        if (!elements.textInput.value.trim()) {
+            showAlert('Please enter some text to convert', 'error');
+            elements.textInput.classList.add('shake');
+            setTimeout(() => elements.textInput.classList.remove('shake'), 500);
+            return;
+        }
     }
 
     // Prepare form data
     const formData = new FormData();
-    formData.append('pdf_file', selectedFile);
+
+    if (inputMode === 'pdf') {
+        formData.append('pdf_file', selectedFile);
+    } else {
+        formData.append('text_content', elements.textInput.value.trim());
+    }
+
     formData.append('api_key', elements.apiKey.value.trim());
     formData.append('api_url', elements.apiUrl.value.trim());
     formData.append('provider', elements.provider.value);
+    formData.append('language', elements.language.value);
     formData.append('voice_id', elements.voiceId.value);
     formData.append('speed', elements.speed.value);
     formData.append('pitch', elements.pitch.value);
@@ -481,6 +570,190 @@ function getAlertIcon(type) {
     };
 
     return icons[type] || icons.info;
+}
+
+// Voice and Language Functions
+async function loadVoicesForProvider() {
+    const provider = elements.provider.value;
+    const language = elements.language.value;
+
+    try {
+        const response = await fetch(`/api/voices/${provider}`);
+        const data = await response.json();
+
+        if (!data.success) {
+            console.error('Failed to load voices:', data.error);
+            return;
+        }
+
+        // Clear existing options
+        elements.voiceId.innerHTML = '';
+
+        // Voice mapping for different providers and languages
+        const voiceMapping = {
+            'minimax': {
+                'en-US': [
+                    { id: 'male-qn-qingse', name: 'Young Male', group: 'Male Voices' },
+                    { id: 'male-qn-jingying', name: 'Professional Male', group: 'Male Voices' },
+                    { id: 'male-qn-badao', name: 'Commanding Male', group: 'Male Voices' },
+                    { id: 'male-qn-daxuesheng', name: 'College Student Male', group: 'Male Voices' },
+                    { id: 'female-shaonv', name: 'Young Female', group: 'Female Voices' },
+                    { id: 'female-yujie', name: 'Mature Female', group: 'Female Voices' },
+                    { id: 'female-chengshu', name: 'Sophisticated Female', group: 'Female Voices' },
+                    { id: 'female-tianmei', name: 'Sweet Female', group: 'Female Voices' }
+                ],
+                'zh-CN': [
+                    { id: 'male-qn-qingse', name: '青涩青年音色', group: '男声' },
+                    { id: 'male-qn-jingying', name: '精英青年音色', group: '男声' },
+                    { id: 'male-qn-badao', name: '霸道青年音色', group: '男声' },
+                    { id: 'male-qn-daxuesheng', name: '青年大学生音色', group: '男声' },
+                    { id: 'female-shaonv', name: '少女音色', group: '女声' },
+                    { id: 'female-yujie', name: '御姐音色', group: '女声' },
+                    { id: 'female-chengshu', name: '成熟女性音色', group: '女声' },
+                    { id: 'female-tianmei', name: '甜美女性音色', group: '女声' }
+                ]
+            },
+            'elevenlabs': {
+                'en-US': data.voices.premade || []
+            },
+            'azure': {
+                'en-US': data.voices['en-US'] || [],
+                'zh-CN': data.voices['zh-CN'] || [],
+                'ja-JP': data.voices['ja-JP'] || []
+            },
+            'google': {
+                'en-US': data.voices['en-US'] || [],
+                'zh-CN': data.voices['zh-CN'] || [],
+                'ja-JP': data.voices['ja-JP'] || []
+            }
+        };
+
+        // Get voices for current provider and language
+        let voices = [];
+        if (voiceMapping[provider] && voiceMapping[provider][language]) {
+            voices = voiceMapping[provider][language];
+        } else if (voiceMapping[provider] && voiceMapping[provider]['en-US']) {
+            // Fallback to English if language not available
+            voices = voiceMapping[provider]['en-US'];
+        }
+
+        // Group voices by category
+        const groups = {};
+        voices.forEach(voice => {
+            const group = voice.group || 'Voices';
+            if (!groups[group]) {
+                groups[group] = [];
+            }
+            groups[group].push(voice);
+        });
+
+        // Add optgroups and options
+        Object.keys(groups).forEach(groupName => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = groupName;
+
+            groups[groupName].forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.id;
+                option.textContent = voice.name;
+                optgroup.appendChild(option);
+            });
+
+            elements.voiceId.appendChild(optgroup);
+        });
+
+    } catch (error) {
+        console.error('Error loading voices:', error);
+    }
+}
+
+async function previewVoice() {
+    // Stop any currently playing preview
+    stopPreview();
+
+    // Validate inputs
+    if (!elements.apiKey.value.trim()) {
+        showAlert('Please enter your API key to preview voice', 'error');
+        elements.apiKey.classList.add('shake');
+        setTimeout(() => elements.apiKey.classList.remove('shake'), 500);
+        return;
+    }
+
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('api_key', elements.apiKey.value.trim());
+    formData.append('api_url', elements.apiUrl.value.trim());
+    formData.append('provider', elements.provider.value);
+    formData.append('language', elements.language.value);
+    formData.append('voice_id', elements.voiceId.value);
+    formData.append('speed', elements.speed.value);
+    formData.append('pitch', elements.pitch.value);
+    formData.append('emotion', elements.emotion.value);
+
+    // Set preview button loading state
+    elements.previewBtn.disabled = true;
+    elements.previewBtnText.textContent = 'Generating...';
+    elements.previewBtnSpinner.classList.remove('hidden');
+
+    try {
+        const response = await fetch('/api/preview', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Preview generation failed');
+        }
+
+        // Get audio blob
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        // Play preview audio
+        previewAudio = new Audio(audioUrl);
+
+        // Update UI
+        elements.previewBtn.classList.add('hidden');
+        elements.stopPreviewBtn.classList.remove('hidden');
+
+        // Handle audio end
+        previewAudio.addEventListener('ended', () => {
+            stopPreview();
+            showAlert('Preview completed', 'success');
+        });
+
+        // Handle play errors
+        previewAudio.play().catch(error => {
+            showAlert('Failed to play preview: ' + error.message, 'error');
+            stopPreview();
+        });
+
+        showAlert('Preview playing...', 'info');
+
+    } catch (error) {
+        showAlert(error.message, 'error');
+        // Reset button state
+        elements.previewBtn.disabled = false;
+        elements.previewBtnText.textContent = 'Preview Voice';
+        elements.previewBtnSpinner.classList.add('hidden');
+    }
+}
+
+function stopPreview() {
+    // Stop and cleanup preview audio
+    if (previewAudio) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        previewAudio = null;
+    }
+
+    // Reset button states
+    elements.previewBtn.disabled = false;
+    elements.previewBtnText.textContent = 'Preview Voice';
+    elements.previewBtnSpinner.classList.add('hidden');
+    elements.previewBtn.classList.remove('hidden');
+    elements.stopPreviewBtn.classList.add('hidden');
 }
 
 // Prevent page unload during conversion

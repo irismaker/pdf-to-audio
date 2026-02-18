@@ -96,7 +96,12 @@ def cleanup_old_files():
 
 
 def run_conversion(job_id, pdf_path, api_key, api_url, provider_name, voice_settings, output_dir):
-    """Run PDF to audio conversion in background thread"""
+    """Run PDF to audio conversion in background thread (legacy function)"""
+    run_conversion_new(job_id, pdf_path, None, api_key, api_url, provider_name, voice_settings, output_dir)
+
+
+def run_conversion_new(job_id, pdf_path, text_content, api_key, api_url, provider_name, voice_settings, output_dir):
+    """Run text or PDF to audio conversion in background thread"""
     try:
         with jobs_lock:
             conversion_jobs[job_id]['status'] = 'processing'
@@ -113,17 +118,25 @@ def run_conversion(job_id, pdf_path, api_key, api_url, provider_name, voice_sett
             provider_config=provider_config
         )
 
-        with jobs_lock:
-            conversion_jobs[job_id]['message'] = 'Extracting text from PDF...'
-
-        # Extract text
-        text = converter.extract_text_from_pdf(pdf_path)
-
-        if not text or not text.strip():
+        # Get text from PDF or use provided text
+        if text_content:
+            # Direct text input mode
             with jobs_lock:
-                conversion_jobs[job_id]['status'] = 'error'
-                conversion_jobs[job_id]['message'] = 'Could not extract text from PDF. The PDF may be image-based or empty.'
-            return
+                conversion_jobs[job_id]['message'] = 'Processing text input...'
+            text = text_content
+        else:
+            # PDF file mode
+            with jobs_lock:
+                conversion_jobs[job_id]['message'] = 'Extracting text from PDF...'
+
+            # Extract text
+            text = converter.extract_text_from_pdf(pdf_path)
+
+            if not text or not text.strip():
+                with jobs_lock:
+                    conversion_jobs[job_id]['status'] = 'error'
+                    conversion_jobs[job_id]['message'] = 'Could not extract text from PDF. The PDF may be image-based or empty.'
+                return
 
         # Split text into chunks
         chunks = converter.split_text(text)
@@ -227,19 +240,8 @@ def get_voices(provider):
 
 @app.route('/api/convert', methods=['POST'])
 def convert():
-    """Handle PDF upload and conversion"""
+    """Handle PDF upload or text input and conversion"""
     try:
-        # Validate request
-        if 'pdf_file' not in request.files:
-            return jsonify({'success': False, 'error': 'No PDF file provided'}), 400
-
-        file = request.files['pdf_file']
-        if file.filename == '':
-            return jsonify({'success': False, 'error': 'No file selected'}), 400
-
-        if not allowed_file(file.filename):
-            return jsonify({'success': False, 'error': 'Only PDF files are allowed'}), 400
-
         # Get parameters
         api_key = request.form.get('api_key', '').strip()
         if not api_key:
@@ -247,6 +249,7 @@ def convert():
 
         api_url = request.form.get('api_url', '').strip()
         provider_name = request.form.get('provider', 'minimax')
+        language = request.form.get('language', 'en-US')
 
         # Get voice settings
         voice_settings = {}
@@ -260,19 +263,41 @@ def convert():
             voice_settings['emotion'] = request.form.get('emotion')
         if request.form.get('vol'):
             voice_settings['vol'] = float(request.form.get('vol'))
+        if language:
+            voice_settings['language'] = language
 
         # Generate unique job ID
         job_id = str(uuid.uuid4())
 
-        # Save uploaded file
-        filename = secure_filename(file.filename)
-        unique_filename = f"{job_id}_{filename}"
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-        file.save(pdf_path)
-
         # Create output directory for this job
         output_dir = os.path.join(app.config['OUTPUT_FOLDER'], job_id)
         os.makedirs(output_dir, exist_ok=True)
+
+        # Check if it's PDF or text input
+        pdf_path = None
+        text_content = None
+
+        if 'pdf_file' in request.files and request.files['pdf_file'].filename:
+            # PDF file mode
+            file = request.files['pdf_file']
+
+            if not allowed_file(file.filename):
+                return jsonify({'success': False, 'error': 'Only PDF files are allowed'}), 400
+
+            # Save uploaded file
+            filename = secure_filename(file.filename)
+            unique_filename = f"{job_id}_{filename}"
+            pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+            file.save(pdf_path)
+
+        elif request.form.get('text_content'):
+            # Text input mode
+            text_content = request.form.get('text_content').strip()
+            if not text_content:
+                return jsonify({'success': False, 'error': 'Text content is empty'}), 400
+
+        else:
+            return jsonify({'success': False, 'error': 'Please provide either a PDF file or text content'}), 400
 
         # Initialize job status
         with jobs_lock:
@@ -286,8 +311,8 @@ def convert():
 
         # Start conversion in background thread
         thread = threading.Thread(
-            target=run_conversion,
-            args=(job_id, pdf_path, api_key, api_url, provider_name, voice_settings, output_dir)
+            target=run_conversion_new,
+            args=(job_id, pdf_path, text_content, api_key, api_url, provider_name, voice_settings, output_dir)
         )
         thread.daemon = True
         thread.start()
@@ -363,6 +388,87 @@ def download_all(job_id):
             as_attachment=True,
             download_name=f'audio_files_{job_id}.zip'
         )
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/preview', methods=['POST'])
+def preview_voice():
+    """Generate a preview audio with current voice settings"""
+    try:
+        # Get parameters
+        api_key = request.form.get('api_key', '').strip()
+        if not api_key:
+            return jsonify({'success': False, 'error': 'API key is required'}), 400
+
+        api_url = request.form.get('api_url', '').strip()
+        provider_name = request.form.get('provider', 'minimax')
+        language = request.form.get('language', 'en-US')
+
+        # Sample texts for different languages
+        sample_texts = {
+            'en-US': 'Hello! This is a preview of the selected voice. You can hear how it sounds with your current settings.',
+            'zh-CN': '你好！这是所选语音的预览。你可以听到它在当前设置下的声音效果。',
+            'ja-JP': 'こんにちは！これは選択した音声のプレビューです。現在の設定でどのように聞こえるかを確認できます。',
+            'es-ES': '¡Hola! Esta es una vista previa de la voz seleccionada. Puedes escuchar cómo suena con tu configuración actual.',
+            'fr-FR': 'Bonjour! Ceci est un aperçu de la voix sélectionnée. Vous pouvez entendre comment elle sonne avec vos paramètres actuels.',
+            'de-DE': 'Hallo! Dies ist eine Vorschau der ausgewählten Stimme. Sie können hören, wie sie mit Ihren aktuellen Einstellungen klingt.',
+            'ko-KR': '안녕하세요! 선택한 음성의 미리보기입니다. 현재 설정으로 어떻게 들리는지 들을 수 있습니다.'
+        }
+
+        preview_text = sample_texts.get(language, sample_texts['en-US'])
+
+        # Get voice settings
+        voice_settings = {}
+        if request.form.get('voice_id'):
+            voice_settings['voice_id'] = request.form.get('voice_id')
+        if request.form.get('speed'):
+            voice_settings['speed'] = float(request.form.get('speed'))
+        if request.form.get('pitch'):
+            voice_settings['pitch'] = int(request.form.get('pitch'))
+        if request.form.get('emotion'):
+            voice_settings['emotion'] = request.form.get('emotion')
+        if request.form.get('vol'):
+            voice_settings['vol'] = float(request.form.get('vol'))
+
+        # Add language to voice settings
+        if language:
+            voice_settings['language'] = language
+
+        # Create converter with custom API URL if provided
+        provider_config = {"timeout": 60}
+        if api_url:
+            provider_config["api_url"] = api_url
+
+        converter = PDFToAudioConverter(
+            provider_name=provider_name,
+            api_key=api_key,
+            provider_config=provider_config
+        )
+
+        # Generate unique filename for preview
+        preview_id = str(uuid.uuid4())
+        preview_filename = f"preview_{preview_id}.mp3"
+        preview_path = os.path.join(app.config['OUTPUT_FOLDER'], preview_filename)
+
+        # Generate audio
+        success = converter.provider.text_to_speech(
+            text=preview_text,
+            output_path=preview_path,
+            voice_settings=voice_settings
+        )
+
+        if success and os.path.exists(preview_path):
+            # Return the audio file
+            return send_file(
+                preview_path,
+                mimetype='audio/mpeg',
+                as_attachment=False,
+                download_name=preview_filename
+            )
+        else:
+            return jsonify({'success': False, 'error': 'Failed to generate preview audio'}), 500
 
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500

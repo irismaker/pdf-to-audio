@@ -327,3 +327,30 @@ a:hover {
     stroke-dasharray: 100;
     animation: checkmark 0.5s ease-in-out;
 }
+
+/* Tab button styling */
+.tab-button {
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.tab-button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tab-button:not(.active):hover {
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+}
+
+/* Textarea styling */
+textarea {
+    font-family: inherit;
+    line-height: 1.5;
+}
+
+textarea::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}

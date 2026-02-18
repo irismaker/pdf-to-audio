@@ -88,33 +88,74 @@
             </div>
         </div>
 
-        <!-- Step 2: Upload PDF -->
+        <!-- Step 2: Upload PDF or Enter Text -->
         <div class="bg-white rounded-lg shadow-sm border border-gray-mid p-6 mb-6">
             <h2 class="text-lg font-semibold text-text-primary mb-4">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent text-white text-sm mr-2">2</span>
-                Upload PDF
+                Upload PDF or Enter Text
             </h2>
-            <div
-                id="drop-zone"
-                class="border-2 border-dashed border-gray-mid rounded-lg p-8 text-center hover:border-accent transition-colors cursor-pointer"
-            >
-                <input type="file" id="pdf-file" accept=".pdf" class="hidden">
-                <div id="upload-prompt">
-                    <svg class="mx-auto h-12 w-12 text-text-secondary" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <p class="mt-2 text-sm text-text-primary">
-                        <span class="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p class="text-xs text-text-secondary mt-1">PDF files only, up to 50MB</p>
+
+            <!-- Tab Buttons -->
+            <div class="flex border-b border-gray-mid mb-4">
+                <button
+                    id="tab-pdf"
+                    class="tab-button active px-4 py-2 font-medium text-sm border-b-2 border-accent text-accent"
+                >
+                    📄 PDF Upload
+                </button>
+                <button
+                    id="tab-text"
+                    class="tab-button px-4 py-2 font-medium text-sm border-b-2 border-transparent text-text-secondary hover:text-text-primary"
+                >
+                    📝 Text Input
+                </button>
+            </div>
+
+            <!-- PDF Upload Section -->
+            <div id="pdf-section">
+                <div
+                    id="drop-zone"
+                    class="border-2 border-dashed border-gray-mid rounded-lg p-8 text-center hover:border-accent transition-colors cursor-pointer"
+                >
+                    <input type="file" id="pdf-file" accept=".pdf" class="hidden">
+                    <div id="upload-prompt">
+                        <svg class="mx-auto h-12 w-12 text-text-secondary" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <p class="mt-2 text-sm text-text-primary">
+                            <span class="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p class="text-xs text-text-secondary mt-1">PDF files only, up to 50MB</p>
+                    </div>
+                    <div id="file-info" class="hidden">
+                        <svg class="mx-auto h-12 w-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p id="file-name" class="mt-2 text-sm font-medium text-text-primary"></p>
+                        <p id="file-size" class="text-xs text-text-secondary"></p>
+                        <button id="remove-file" class="mt-2 text-sm text-red-500 hover:text-red-600">Remove</button>
+                    </div>
                 </div>
-                <div id="file-info" class="hidden">
-                    <svg class="mx-auto h-12 w-12 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <p id="file-name" class="mt-2 text-sm font-medium text-text-primary"></p>
-                    <p id="file-size" class="text-xs text-text-secondary"></p>
-                    <button id="remove-file" class="mt-2 text-sm text-red-500 hover:text-red-600">Remove</button>
+            </div>
+
+            <!-- Text Input Section -->
+            <div id="text-section" class="hidden">
+                <textarea
+                    id="text-input"
+                    placeholder="Paste or type your text here...&#10;&#10;You can enter any text you want to convert to audio. The text will be split into appropriate chunks if it's too long."
+                    class="w-full px-4 py-3 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent resize-none"
+                    rows="10"
+                ></textarea>
+                <div class="flex justify-between items-center mt-2">
+                    <p class="text-xs text-text-secondary">
+                        <span id="text-char-count">0</span> characters
+                    </p>
+                    <button
+                        id="clear-text-btn"
+                        class="text-sm text-red-500 hover:text-red-600"
+                    >
+                        Clear
+                    </button>
                 </div>
             </div>
         </div>
@@ -126,6 +167,25 @@
                 Customize Voice <span class="text-xs font-normal text-text-secondary">(Optional)</span>
             </h2>
             <div class="space-y-4">
+                <!-- Language Selection -->
+                <div>
+                    <label for="language" class="block text-sm font-medium text-text-primary mb-2">
+                        Language
+                    </label>
+                    <select
+                        id="language"
+                        class="w-full px-4 py-2 border border-gray-mid rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+                    >
+                        <option value="en-US">English (US)</option>
+                        <option value="zh-CN">Chinese (Mandarin)</option>
+                        <option value="ja-JP">Japanese</option>
+                        <option value="es-ES">Spanish</option>
+                        <option value="fr-FR">French</option>
+                        <option value="de-DE">German</option>
+                        <option value="ko-KR">Korean</option>
+                    </select>
+                </div>
+
                 <div>
                     <label for="voice-id" class="block text-sm font-medium text-text-primary mb-2">
                         Voice
@@ -202,6 +262,45 @@
                         <option value="fluent">Fluent</option>
                         <option value="whisper">Whisper</option>
                     </select>
+                </div>
+
+                <!-- Voice Preview Section -->
+                <div class="border-t border-gray-mid pt-4">
+                    <label class="block text-sm font-medium text-text-primary mb-2">
+                        Voice Preview
+                    </label>
+                    <p class="text-xs text-text-secondary mb-3">
+                        Test your voice settings before converting the full document
+                    </p>
+                    <div class="flex gap-2">
+                        <button
+                            id="preview-btn"
+                            type="button"
+                            class="px-4 py-2 bg-secondary text-white font-medium rounded-lg hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                        >
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span id="preview-btn-text">Preview Voice</span>
+                            <svg id="preview-btn-spinner" class="hidden animate-spin ml-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                        <button
+                            id="stop-preview-btn"
+                            type="button"
+                            class="hidden px-4 py-2 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition-all"
+                        >
+                            <svg class="inline-block h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clip-rule="evenodd" />
+                            </svg>
+                            Stop
+                        </button>
+                    </div>
+                    <!-- Hidden audio element for preview -->
+                    <audio id="preview-audio" class="hidden"></audio>
                 </div>
             </div>
         </div>
